@@ -1,0 +1,51 @@
+<!-- templates/products/product_detail.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="product-detail">
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.description }}</p>
+    <p>${{ product.price }}</p>
+    
+    <!-- Use an anchor tag around the image to enable preview -->
+    <a href="{{ product.image.url }}" id="product-image-preview">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+    </a>
+    
+    <a href="{% url 'product_list' %}" class="btn btn-back">Back to Product List</a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+    <script>
+        // JavaScript code to handle image preview using modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const productImage = document.getElementById('product-image-preview');
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            
+            const modalContent = document.createElement('img');
+            modalContent.className = 'modal-content';
+            modalContent.src = productImage.href;
+            
+            const modalClose = document.createElement('span');
+            modalClose.className = 'modal-close';
+            modalClose.innerHTML = '&times;';
+            modalClose.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            modal.appendChild(modalContent);
+            modal.appendChild(modalClose);
+            document.body.appendChild(modal);
+            
+            productImage.addEventListener('click', function(event) {
+                event.preventDefault();
+                modal.style.display = 'block';
+            });
+        });
+    </script>
+
+{% endblock %}

@@ -1,0 +1,73 @@
+<!-- product_list.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    <input type="text" id="search-input" placeholder="Search for products...">
+    <ul id="product-list">
+        {% for product in page_obj %}
+            <li>
+                <a href="#" class="product-link" data-product-id="{{ product.id }}">
+                    <div>
+                        <h3>{{ product.name }}</h3>
+                        <p>${{ product.price }}</p>
+                    </div>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#search-input').on('keyup', function() {
+            var query = $(this).val();
+            $.ajax({
+                url: "{% url 'search_products' %}",
+                data: {'query': query},
+                success: function(data) {
+                    $('#product-list').empty();  // Clear previous results
+                    for (var i = 0; i < data.length; i++) {
+                        var productId = data[i].id;
+                        var productName = data[i].name;
+                        var productPrice = data[i].price;
+                        
+                        // Construct the product detail URL dynamically
+                        var productUrl = productId + '/';
+                        
+                        // Append the product item to the list
+                        $('#product-list').append('<li><a href="' + productUrl + '">' + productName + ' - $' + productPrice + '</a></li>');
+                    }
+                }
+            });
+        });
+        
+        // Event delegation for dynamically added elements
+        $('#product-list').on('click', '.product-link', function(e) {
+            e.preventDefault();
+            var productId = $(this).data('product-id');
+            var productUrl = productId + '/';
+            window.location.href = productUrl;
+        });
+    });
+</script>
+{% endblock scripts %}
